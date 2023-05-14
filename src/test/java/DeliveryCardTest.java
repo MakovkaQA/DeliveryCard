@@ -2,15 +2,12 @@ import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.Select;
 
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-import static com.codeborne.selenide.Condition.appear;
-import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 
@@ -45,7 +42,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=city].input_invalid input__sub[contains(text(), 'Доставка в выбранный город недоступна')]");
+        $("[data-test-id=city].input_invalid .input__sub").shouldHave(text("Доставка в выбранный город недоступна"));
 
     }
 
@@ -57,7 +54,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=city].input_invalid input__sub[contains(text(), 'Поле обязательно для заполнения')]");
+        $("[data-test-id=city].input_invalid .input__sub").shouldHave(text("Поле обязательно для заполнения"));
 
     }
 
@@ -70,7 +67,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $(withText("Доставка в выбранный город недоступна"));
+        $("[data-test-id=city].input_invalid .input__sub").shouldHave(text("Доставка в выбранный город недоступна"));
 
     }
 
@@ -92,7 +89,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=date].input_invalid input__sub[contains(text(), 'Заказ на выбранную дату невозможен')]");
+        $("[data-test-id=date] .input_invalid .input__sub").shouldHave(text("Заказ на выбранную дату невозможен"));
 
     }
 
@@ -127,7 +124,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=date].input_invalid input__sub[contains(text(), 'Неверно введена дата')]");
+        $("[data-test-id=date] .input_invalid .input__sub").shouldHave(text("Неверно введена дата"));
 
     }
 
@@ -139,7 +136,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=name].input_invalid input__sub[contains(text(), 'Поле обязательно для заполнения')]");
+        $("[data-test-id=name].input_invalid .input__sub").shouldHave(text("Поле обязательно для заполнения"));
 
     }
 
@@ -152,7 +149,7 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=name].input_invalid input__sub[contains(text(), 'Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы.')]");
+        $("[data-test-id=name].input_invalid .input__sub").shouldHave(text("Имя и Фамилия указаные неверно. Допустимы только русские буквы, пробелы и дефисы."));
 
     }
 
@@ -191,8 +188,19 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=phone].input_invalid input__sub[contains(text(), 'Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.')]");
+        $("[data-test-id=phone].input_invalid .input__sub").shouldHave(text("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678."));
 
+    }
+
+    @Test
+    public void phoneIsEmptyTest() {
+
+        $("[data-test-id=city] input").setValue("Кемерово");
+        $("[data-test-id=name] input").setValue("Григорьев Аполлонов Константин");
+        $("[data-test-id=agreement]").click();
+        $("button.button_view_extra").click();
+
+        $("[data-test-id=phone].input_invalid .input__sub").shouldHave(text("Поле обязательно для заполнения"));
 
     }
 
@@ -204,7 +212,8 @@ public class DeliveryCardTest {
         $("[data-test-id=phone] input").setValue("+79672334355");
         $("button.button_view_extra").click();
 
-        $x("//[data-test-id=agreement].input_invalid");
+        $("[data-test-id=agreement].input_invalid").exists();
+
 
 
     }
