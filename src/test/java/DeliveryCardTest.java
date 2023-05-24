@@ -1,6 +1,7 @@
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
 import java.time.Duration;
@@ -8,10 +9,17 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.*;
 
 public class DeliveryCardTest {
+
+    public String generateDate(long addDays, String pattern) {
+        return LocalDate.now().plusDays(addDays).format(DateTimeFormatter.ofPattern(pattern));
+    }
+
+    public int getDay(long addDays) {
+        return LocalDate.now().plusDays(addDays).getDayOfMonth();
+    }
 
     @BeforeEach
     void setup() {
@@ -23,13 +31,17 @@ public class DeliveryCardTest {
     @Test
     public void positiveSuiteTest() {
 
+        String planningDate = generateDate(3, "dd.MM.yyyy");
+
         $("[data-test-id=city] input").setValue("Москва");
         $("[data-test-id=name] input").setValue("Иванов Иван");
         $("[data-test-id=phone] input").setValue("+79673432288");
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//div[contains(text(), 'Успешно')]").should(appear, Duration.ofSeconds(15));
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningDate));
 
     }
 
@@ -74,15 +86,12 @@ public class DeliveryCardTest {
     @Test
     public void currentDatePlus2Test() {
 
-        LocalDate currentDate = LocalDate.now();
-        LocalDate date = currentDate.plusDays(2);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String formattedDate = date.format(formatter);
+        String planningDate = generateDate(2, "dd.MM.yyyy");
 
 
         $("[data-test-id=city] input").setValue("Санкт-Петербург");
-        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE,Keys.BACK_SPACE, Keys.BACK_SPACE);
-        $("[data-test-id=date] input").setValue(String.valueOf(formattedDate));
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(String.valueOf(planningDate));
 
         $("[data-test-id=name] input").setValue("Леонов Лев");
         $("[data-test-id=phone] input").setValue("+79223344422");
@@ -96,21 +105,20 @@ public class DeliveryCardTest {
     @Test
     public void currentDatePlus4Test() {
 
-        LocalDate currentDate = LocalDate.now();
-        LocalDate date = currentDate.plusDays(4);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        String formattedDate = date.format(formatter);
+        String planningDate = generateDate(4, "dd.MM.yyyy");
 
 
         $("[data-test-id=city] input").setValue("Санкт-Петербург");
-        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE,Keys.BACK_SPACE, Keys.BACK_SPACE);
-        $("[data-test-id=date] input").setValue(String.valueOf(formattedDate));
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
+        $("[data-test-id=date] input").setValue(String.valueOf(planningDate));
         $("[data-test-id=name] input").setValue("Леонов Лев");
         $("[data-test-id=phone] input").setValue("+79223344422");
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//div[contains(text(), 'Успешно')]").should(appear, Duration.ofSeconds(15));
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningDate));
 
     }
 
@@ -118,7 +126,7 @@ public class DeliveryCardTest {
     public void dateIsEmptyTest() {
 
         $("[data-test-id=city] input").setValue("Санкт-Петербург");
-        $("[data-test-id=date] input").sendKeys(Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE, Keys.BACK_SPACE,Keys.BACK_SPACE, Keys.BACK_SPACE);
+        $("[data-test-id=date] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.BACK_SPACE);
         $("[data-test-id=name] input").setValue("Леонов Лев");
         $("[data-test-id=phone] input").setValue("+79223344422");
         $("[data-test-id=agreement]").click();
@@ -156,18 +164,24 @@ public class DeliveryCardTest {
     @Test
     public void nameWithAHyphenTest() {
 
+        String planningDate = generateDate(3, "dd.MM.yyyy");
+
         $("[data-test-id=city] input").setValue("Кемерово");
         $("[data-test-id=name] input").setValue("Григорьев-Аполлонов Константин");
         $("[data-test-id=phone] input").setValue("+79223343355");
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//div[contains(text(), 'Успешно')]").should(appear, Duration.ofSeconds(15));
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningDate));
 
     }
 
     @Test
     public void nameWithASpaceTest() {
+
+        String planningDate = generateDate(3, "dd.MM.yyyy");
 
         $("[data-test-id=city] input").setValue("Кемерово");
         $("[data-test-id=name] input").setValue("Григорьев Аполлонов Константин");
@@ -175,7 +189,9 @@ public class DeliveryCardTest {
         $("[data-test-id=agreement]").click();
         $("button.button_view_extra").click();
 
-        $x("//div[contains(text(), 'Успешно')]").should(appear, Duration.ofSeconds(15));
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningDate));
 
     }
 
@@ -214,10 +230,86 @@ public class DeliveryCardTest {
 
         $("[data-test-id=agreement].input_invalid").exists();
 
+    }
 
+    @Test
+    public void cityWithPopupTest() {
+
+        String planningDate = generateDate(3, "dd.MM.yyyy");
+
+        $("[data-test-id=city] input").setValue("Мо");
+        $(".menu-item:nth-child(3)").click();
+        $("[data-test-id=name] input").setValue("Иванов Иван");
+        $("[data-test-id=phone] input").setValue("+79673432288");
+        $("[data-test-id=agreement]").click();
+        $("button.button_view_extra").click();
+
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningDate));
 
     }
 
+    @Test
+    public void selectDateWithCalendarWithinAMonthTest() {
 
+        long daysAmount = 7;
+        String currentMonth = generateDate(0, "MM");
+        String planningMonth = generateDate(daysAmount, "MM");
+        String planningDate = String.valueOf(getDay(daysAmount));
+        String planningFullDate = generateDate(daysAmount, "dd.MM.yyyy");
+
+        $("[data-test-id=city] input").setValue("Москва");
+        $("[data-test-id=date] button").click();
+
+        if (currentMonth.equals(planningMonth)) {
+            $$("[data-day]").findBy(text(planningDate)).click();
+        } else {
+            $("[data-step=1]").click();
+            $$("[data-day]").findBy(text(planningDate)).click();
+            ;
+        }
+
+        $("[data-test-id=name] input").setValue("Иванов Иван");
+        $("[data-test-id=phone] input").setValue("+79673432288");
+        $("[data-test-id=agreement]").click();
+        $("button.button_view_extra").click();
+
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningFullDate));
+
+    }
+
+    @Test
+    public void selectDateWithCalendarOutsideOfTheMonthTest() {
+
+        long daysAmount = 14;
+        String currentMonth = generateDate(0, "MM");
+        String planningMonth = generateDate(daysAmount, "MM");
+        String planningDate = String.valueOf(getDay(daysAmount));
+        String planningFullDate = generateDate(daysAmount, "dd.MM.yyyy");
+
+        $("[data-test-id=city] input").setValue("Москва");
+        $("[data-test-id=date] button").click();
+
+        if (currentMonth.equals(planningMonth)) {
+            $$("[data-day]").findBy(text(planningDate)).click();
+        } else {
+            $("[data-step='1']").click();
+            $$("[data-day]").findBy(text(planningDate)).click();
+            ;
+        }
+
+        $("[data-test-id=name] input").setValue("Шукшин Иван");
+        $("[data-test-id=phone] input").setValue("+79673432288");
+        $("[data-test-id=agreement]").click();
+        $("button.button_view_extra").click();
+
+        $("[data-test-id=notification] .notification__content")
+                .should(appear, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + planningFullDate));
+
+    }
 
 }
